@@ -1,0 +1,11 @@
+/* Estilos isolados para REGISTROS DA ZAC. Nenhuma fotografia é exibida nesta versão. */
+.zac-registros{padding:clamp(32px,5vw,72px) max(24px,5vw);background:#f4f9fb;color:#14364c}
+.zac-registros__heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:28px}
+.zac-registros__eyebrow{font:700 13px/1.5 Arial,sans-serif;letter-spacing:.14em;margin:0 0 16px}
+.zac-registros h2{font:400 clamp(36px,4.2vw,68px)/1.1 Georgia,serif;margin:0}
+.zac-registros__track{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:thin;overscroll-behavior-inline:contain}
+.zac-registros__track figure{margin:0;flex:0 0 calc((100% - 72px)/4);aspect-ratio:.78;overflow:hidden;border-radius:15px;scroll-snap-align:start;background:#dde7e9}
+.zac-registros__track img{width:100%;height:100%;object-fit:cover;display:block}
+@media(max-width:960px){.zac-registros__track figure{flex-basis:calc((100% - 24px)/2)}}
+@media(max-width:600px){.zac-registros__heading{align-items:start;flex-direction:column}.zac-registros__track figure{flex-basis:83%;aspect-ratio:.84}}
+@media(prefers-reduced-motion:reduce){.zac-registros__track{scroll-behavior:auto}}
