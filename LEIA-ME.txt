@@ -1,0 +1,15 @@
+ZAC — arquivos do site
+
+index.html: site completo com CSS e JavaScript incorporados.
+
+PUBLICAÇÃO
+Envie index.html para a pasta pública da hospedagem (geralmente public_html) e mantenha esse nome. O DNS do domínio deve apontar para a hospedagem conforme as instruções do provedor.
+
+PENDÊNCIAS OBRIGATÓRIAS ANTES DE PUBLICAR
+1. FORMULÁRIO: está validando os campos, mas ainda não envia dados. Configure endpoint HTTPS de formulário no JavaScript antes de receber dados reais.
+2. LGPD: textos legais são uma base inicial. Complete razão social, CNPJ, endereço e canal oficial de privacidade; faça revisão jurídica.
+3. LOGO: foi criada uma representação tipográfica provisória ZAC; substitua pelo arquivo oficial sem alterar a marca.
+4. GALERIA: imagens externas do Unsplash são referências provisórias; substituir por fotografias licenciadas e aprovadas pela ZAC.
+5. Verifique os links das seguradoras, contatos oficiais e conteúdo antes da publicação.
+
+O arquivo usa Google Fonts e imagens externas, portanto esses elementos exigem internet.
