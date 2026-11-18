@@ -1,0 +1,14 @@
+name: ZAC - inspecao logo Zurich
+on:
+  push:
+    branches: [main]
+    paths: ["scripts/inspect_zurich_logo.py",".github/workflows/zac-logo-inspect.yml"]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install pillow
+      - run: python scripts/inspect_zurich_logo.py
