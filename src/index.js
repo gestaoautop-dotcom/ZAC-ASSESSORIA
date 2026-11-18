@@ -16,7 +16,8 @@ export default {
         htmlLength:content.length,hasBody:/<body/i.test(content),
         hasGalleryTrack:content.includes("zac-photo-track"),
         hasGalleryFrames:content.includes("carousel-frame"),
-        galleryIndex:content.indexOf("zac-photo-track"),galleryExcerpt:content.slice(content.indexOf("zac-photo-track")-250,content.indexOf("zac-photo-track")+2400),hasMetaCSP:content.includes("Content-Security-Policy")
+        galleryIndex:content.indexOf("zac-photo-track"),galleryExcerpt:content.slice(content.indexOf("zac-photo-track")-250,content.indexOf("zac-photo-track")+2400),hasMetaCSP:content.includes("Content-Security-Policy"),
+        rewriteTest:await (async()=>{const test=new HTMLRewriter().on("#zac-photo-track",{element(e){e.setInnerContent(FRAMES,{html:true});}}).transform(new Response(content,{headers:{"content-type":"text/html;charset=utf-8"}}));const out=await test.text();return {hasNew:out.includes("zac-evento-01.jpg"),hasOld:out.includes("zac-registro-01.png"),length:out.length};})()
       });
     }
     if (url.pathname.startsWith(EVENT_PATH)) {
