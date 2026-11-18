@@ -6,20 +6,6 @@ const FRAMES = NAMES.map((filename,i) => '<figure class="carousel-frame"><img sr
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.pathname === "/__zac_diag") {
-      const originResponse = await fetch(ORIGIN + "/?zac_probe=1");
-      const content = await originResponse.text();
-      return Response.json({
-        version:"20261118-galeria-11",mode:"worker",expected:11,
-        upstreamStatus:originResponse.status,
-        upstreamType:originResponse.headers.get("content-type"),
-        htmlLength:content.length,hasBody:/<body/i.test(content),
-        hasGalleryTrack:content.includes("zac-photo-track"),
-        hasGalleryFrames:content.includes("carousel-frame"),
-        galleryIndex:content.indexOf("zac-photo-track"),galleryExcerpt:content.slice(content.indexOf("zac-photo-track")-250,content.indexOf("zac-photo-track")+2400),hasMetaCSP:content.includes("Content-Security-Policy"),
-        rewriteTest:await (async()=>{const test=new HTMLRewriter().on("#zac-photo-track",{element(e){e.setInnerContent(FRAMES,{html:true});}}).transform(new Response(content,{headers:{"content-type":"text/html;charset=utf-8"}}));const out=await test.text();return {hasNew:out.includes("zac-evento-01.jpg"),hasOld:out.includes("zac-registro-01.png"),length:out.length};})()
-      });
-    }
     if (url.pathname.startsWith(EVENT_PATH)) {
       const filename = url.pathname.slice(EVENT_PATH.length);
       if (!NAMES.includes(filename)) return new Response("Not found", {status:404});
