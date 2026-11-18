@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/zac-qa.yml"
       - "src/independent.js"
+      - "scripts/qa_browser.py"
       - "wrangler.toml"
   workflow_dispatch:
 permissions:
@@ -56,3 +57,10 @@ jobs:
           cat /tmp/zac-valid.json
           test "${code}" = 201
           grep -q '"ok":true' /tmp/zac-valid.json
+
+      - name: Teste de navegador Chromium (design e galeria)
+        shell: bash
+        run: |
+          python -m pip install playwright
+          python -m playwright install chromium
+          python scripts/qa_browser.py
