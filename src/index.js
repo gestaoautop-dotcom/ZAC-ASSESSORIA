@@ -6,6 +6,7 @@ const FRAMES = NAMES.map((filename,i) => '<figure class="carousel-frame"><img sr
 export default {
   async fetch(request) {
     const url = new URL(request.url);
+    if (url.pathname === "/__zac_diag") return Response.json({version:"20261118-galeria-11",expected:11,mode:"worker"});
     if (url.pathname.startsWith(EVENT_PATH)) {
       const filename = url.pathname.slice(EVENT_PATH.length);
       if (!NAMES.includes(filename)) return new Response("Not found", {status:404});
