@@ -42,7 +42,9 @@ def queue_asset(value):
     if re.match(r"^/images/galeria/zac-registro-", path):
         return
     # Newly approved photos are copied directly from GitHub, never fetched from ChatGPT.
-    if path.startswith("/images/galeria/eventos/zac-evento-"):
+    if path.startswith("/images/galeria/eventos/"):
+        return
+    if path.endswith("/"):
         return
     if path not in seen_assets:
         seen_assets.add(path)
