@@ -6,6 +6,7 @@ on:
       - "src/independent.js"
       - "wrangler.toml"
       - "site/**"
+      - "scripts/qa_gallery_production.py"
       - ".github/workflows/zac-prod-qa.yml"
   workflow_dispatch:
 permissions:
@@ -15,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Checkout dos testes
+        uses: actions/checkout@v4
       - name: Verificar site principal e independencia
         shell: bash
         run: |
@@ -59,3 +62,10 @@ jobs:
           test "${hidden_status}" = 200
           grep -q '"ok":true' /tmp/zac-honeypot.json
           echo "SUCCESS: production assets, pages and lead API checks passed."
+
+      - name: Validar imagens sem distorcao no Chromium
+        shell: bash
+        run: |
+          python -m pip install playwright
+          python -m playwright install chromium
+          python scripts/qa_gallery_production.py
