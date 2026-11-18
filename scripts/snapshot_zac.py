@@ -77,6 +77,33 @@ def fix_gallery(soup):
         img.attrs.pop("data-src", None)
         track.append(fig)
     assert len(track.select("figure.carousel-frame")) == 11
+    # The archived vinext/React hydration may recreate the old 14 photos.
+    # Keep the same original carousel design, reapplying only 11 approved photos.
+    script = soup.new_tag("script")
+    script["data-zac-gallery"] = "independent"
+    script.string = """(function(){
+      const names=Array.from({length:11},(_,i)=>'zac-evento-'+String(i+1).padStart(2,'0')+'.jpg');
+      const sync=()=>{
+        const t=document.getElementById('zac-photo-track'); if(!t)return;
+        const photos=t.querySelectorAll('figure.carousel-frame img');
+        if(photos.length===11 && photos[0].getAttribute('src')?.includes('zac-evento-01.jpg'))return;
+        const figure=t.querySelector('figure.carousel-frame');
+        if(!figure)return;
+        t.innerHTML='';
+        names.forEach((name,i)=>{
+          const f=figure.cloneNode(true),image=f.querySelector('img');
+          if(!image)return;
+          image.src='/images/galeria/eventos/'+name;
+          image.alt='Registro da ZAC em eventos e encontros — foto '+(i+1);
+          image.removeAttribute('srcset');image.removeAttribute('data-src');
+          t.append(f);
+        });
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync);else sync();
+      window.addEventListener('load',sync);
+      setInterval(sync,1000);
+    })();"""
+    soup.body.append(script)
 
 for page in PAGES:
     try:
