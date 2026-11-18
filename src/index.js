@@ -46,7 +46,7 @@ export default {
     if (!(outHeaders.get("content-type") || "").includes("text/html") || request.method === "HEAD") {
       return new Response(request.method === "HEAD" ? null : res.body,{status:res.status,headers:outHeaders});
     }
-    const html = (await res.text()).split(ORIGIN).join(url.origin);
+    let html = (await res.text()).split(ORIGIN).join(url.origin);
     // The original site may re-render the gallery after parsing HTML.
     // Reapply only the gallery photos client-side; never modify the rest of the page.
     const injected = '<script data-zac-gallery-update="20261118">' +
@@ -58,13 +58,12 @@ export default {
       'if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",sync);else sync();' +
       'window.addEventListener("load",sync);setInterval(sync,1000);})();' +
       '</script>';
+    html = html.replace(/<\/body>/i, injected + '</body>');
     const response = new Response(html,{status:res.status,headers:outHeaders});
     // Preserve all existing photos until ALL eleven replacements are actually uploaded.
     if (res.ok) {
       return new HTMLRewriter().on("#zac-photo-track",{
         element(element){ element.setInnerContent(FRAMES,{html:true}); }
-      }).on("body",{
-        element(element){ element.append(injected,{html:true}); }
       }).transform(response);
     }
     return response;
