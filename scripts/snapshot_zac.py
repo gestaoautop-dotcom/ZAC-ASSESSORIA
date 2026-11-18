@@ -70,8 +70,8 @@ def fix_gallery(soup):
             raise RuntimeError("Approved carousel figure has no image")
         img["src"] = "/images/galeria/eventos/" + name
         img["alt"] = f"Registro da ZAC em eventos e encontros — foto {i}"
-        img.pop("srcset", None)
-        img.pop("data-src", None)
+        img.attrs.pop("srcset", None)
+        img.attrs.pop("data-src", None)
         track.append(fig)
     assert len(track.select("figure.carousel-frame")) == 11
 
