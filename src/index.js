@@ -3,16 +3,6 @@ const EVENT_PATH = "/images/galeria/eventos/";
 const RAW_PATH = "https://raw.githubusercontent.com/gestaoautop-dotcom/ZAC-ASSESSORIA/main/galeria/eventos/";
 const NAMES = Array.from({length:11}, (_,i) => "zac-evento-" + String(i+1).padStart(2,"0") + ".jpg");
 const FRAMES = NAMES.map((filename,i) => '<figure class="carousel-frame"><img src="' + EVENT_PATH + filename + '" loading="lazy" decoding="async" alt="Registro de encontro e evento da ZAC — foto ' + (i+1) + '"></figure>').join("");
-const galleryReady = async () => {
-  const checks = await Promise.all(NAMES.map(async (name) => {
-    try {
-      const r = await fetch(RAW_PATH+name, {method:"HEAD"});
-      return r.ok && (r.headers.get("content-type") || "").startsWith("image/");
-    } catch {return false;}
-  }));
-  return checks.every(Boolean);
-};
-
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -45,7 +35,7 @@ export default {
     const html = (await res.text()).split(ORIGIN).join(url.origin);
     const response = new Response(html,{status:res.status,headers:outHeaders});
     // Preserve all existing photos until ALL eleven replacements are actually uploaded.
-    if (res.ok && await galleryReady()) {
+    if (res.ok) {
       return new HTMLRewriter().on("#zac-photo-track",{
         element(element){ element.setInnerContent(FRAMES,{html:true}); }
       }).transform(response);
