@@ -1,0 +1,22 @@
+name: ZAC - WhatsApp e formularios
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/index.html"
+      - "src/independent.js"
+      - "scripts/qa_whatsapp.py"
+      - ".github/workflows/zac-whatsapp-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install playwright
+      - run: python -m playwright install chromium
+      - name: Validar numero mensagem e posicionamento
+        run: python scripts/qa_whatsapp.py
