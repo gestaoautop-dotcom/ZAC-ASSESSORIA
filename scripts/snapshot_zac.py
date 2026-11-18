@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 ORIGIN = "https://zac-assessoria.carolschimitez491.chatgpt.site"
 HOST = urlsplit(ORIGIN).netloc
 ROOT = Path("site")
-PAGES = ["/", "/privacidade", "/termos", "/cookies", "/acessibilidade"]
+PAGES = ["/", "/privacidade", "/termos", "/cookies", "/acessibilidade", "/obrigado"]
 PHOTOS = Path("galeria/eventos")
 SESSION = requests.Session()
 SESSION.headers.update({"User-Agent": "Mozilla/5.0 (compatible; ZAC-migration/1.0)"})
