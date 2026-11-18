@@ -1,0 +1,32 @@
+name: ZAC - conferir logo Zurich publicado
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/zac-zurich-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aguardar novo logo na Cloudflare
+        shell: bash
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 24); do
+            status=$(curl -LsS -o /tmp/zurich-logo-check -w "%{http_code}" "https://zacseguros.com.br/images/parceiras/zurich-sem-seguros.jpg?check=${GITHUB_RUN_ID}-${i}" || true)
+            echo "Attempt ${i}: HTTP ${status}"
+            if [ "${status}" = 200 ] && curl -fsSL "https://zacseguros.com.br/?zurich_check=${GITHUB_RUN_ID}-${i}" | grep -q 'zurich-sem-seguros.jpg'; then
+              exit 0
+            fi
+            sleep 8
+          done
+          echo "Cloudflare did not publish the updated Zurich asset." >&2
+          exit 1
+      - run: python -m pip install playwright
+      - run: python -m playwright install chromium
+      - run: python scripts/qa_zurich_live.py
