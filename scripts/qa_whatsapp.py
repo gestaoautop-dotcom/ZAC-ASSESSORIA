@@ -9,6 +9,9 @@ async def main():
     for width,height in [(1440,900),(390,844)]:
       page=await browser.new_page(viewport={"width":width,"height":height})
       await page.goto(BASE+"/?zac_whatsapp_qa="+str(width),wait_until="networkidle",timeout=60000)
+      html=await page.content()
+      print("URL:",page.url,"title:",await page.title(),"HTML HAS WHATSAPP:",'zac-whatsapp-site' in html)
+      print("HTML END:",html[-600:])
       target=page.locator("#zac-whatsapp-site")
       assert await target.count()==1,"WhatsApp button missing"
       href=await target.get_attribute("href")
