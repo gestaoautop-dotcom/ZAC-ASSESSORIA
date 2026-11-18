@@ -16,7 +16,7 @@ export default {
         htmlLength:content.length,hasBody:/<body/i.test(content),
         hasGalleryTrack:content.includes("zac-photo-track"),
         hasGalleryFrames:content.includes("carousel-frame"),
-        galleryIndex:content.indexOf("zac-photo-track")
+        galleryIndex:content.indexOf("zac-photo-track"),galleryExcerpt:content.slice(content.indexOf("zac-photo-track")-250,content.indexOf("zac-photo-track")+2400),hasMetaCSP:content.includes("Content-Security-Policy")
       });
     }
     if (url.pathname.startsWith(EVENT_PATH)) {
