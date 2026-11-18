@@ -47,8 +47,10 @@ for path in [Path("site/index.html"), *Path("site/_next/static/chunks").glob("*.
     text=text.replace(needle,replacement)
     if path.name=="index.html":
         # Keep intrinsic image dimensions in HTML consistent with the new crop.
-        pattern=r'(<img alt="Zurich Seguros" height=")381(" loading="lazy" src=")' + re.escape(replacement) + r'(" width=")780(")'
-        text,new_n=re.subn(pattern,lambda m:m.group(1)+str(cropped.height)+m.group(2)+m.group(3)+m.group(4)+str(cropped.width)+m.group(5),text)
+        html_old='height="381" loading="lazy" src="'+replacement+'" width="780"'
+        html_new='height="'+str(cropped.height)+'" loading="lazy" src="'+replacement+'" width="'+str(cropped.width)+'"'
+        new_n=text.count(html_old)
+        text=text.replace(html_old,html_new)
         print("Updated intrinsic image dimensions:",new_n)
     path.write_text(text,encoding="utf-8")
     count+=occurrences
