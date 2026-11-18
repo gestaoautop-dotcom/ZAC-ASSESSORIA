@@ -41,6 +41,9 @@ def queue_asset(value):
         return
     if re.match(r"^/images/galeria/zac-registro-", path):
         return
+    # Newly approved photos are copied directly from GitHub, never fetched from ChatGPT.
+    if path.startswith("/images/galeria/eventos/zac-evento-"):
+        return
     if path not in seen_assets:
         seen_assets.add(path)
         asset_queue.append(path)
@@ -110,7 +113,7 @@ for page in PAGES:
     output.write_text(text, encoding="utf-8")
     print(f"PAGE {page} -> {output} ({len(text)} chars)")
 
-for name in ("favicon.svg", "robots.txt", "sitemap.xml"):
+for name in ("favicon.svg",):
     queue_asset("/" + name)
 
 while asset_queue:
