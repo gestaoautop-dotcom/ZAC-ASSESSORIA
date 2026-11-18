@@ -6,7 +6,19 @@ const FRAMES = NAMES.map((filename,i) => '<figure class="carousel-frame"><img sr
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.pathname === "/__zac_diag") return Response.json({version:"20261118-galeria-11",expected:11,mode:"worker"});
+    if (url.pathname === "/__zac_diag") {
+      const originResponse = await fetch(ORIGIN + "/?zac_probe=1");
+      const content = await originResponse.text();
+      return Response.json({
+        version:"20261118-galeria-11",mode:"worker",expected:11,
+        upstreamStatus:originResponse.status,
+        upstreamType:originResponse.headers.get("content-type"),
+        htmlLength:content.length,hasBody:/<body/i.test(content),
+        hasGalleryTrack:content.includes("zac-photo-track"),
+        hasGalleryFrames:content.includes("carousel-frame"),
+        galleryIndex:content.indexOf("zac-photo-track")
+      });
+    }
     if (url.pathname.startsWith(EVENT_PATH)) {
       const filename = url.pathname.slice(EVENT_PATH.length);
       if (!NAMES.includes(filename)) return new Response("Not found", {status:404});
