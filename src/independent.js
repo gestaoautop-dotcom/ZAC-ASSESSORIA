@@ -6,6 +6,41 @@ function json(value, status = 200) {
 function clean(value, max) {
   return typeof value === "string" ? value.trim().slice(0, max + 1) : "";
 }
+// Transactional email notifications. Safe to deploy before the Email Service
+// binding is configured: submissions continue to be saved in D1.
+const DEFAULT_NOTICE_EMAIL = "comercialcaxias@zacseguros.com.br";
+function recipientsFromEnv(env) {
+  const raw = env.ZAC_NOTIFICATION_RECIPIENTS || DEFAULT_NOTICE_EMAIL;
+  return [...new Set(String(raw).split(/[;,\s]+/).map(s=>s.trim().toLowerCase()).filter(
+    s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
+  ))].slice(0,15);
+}
+async function sendLeadNotice(env, lead) {
+  const recipients=recipientsFromEnv(env);
+  if (!env.EMAIL || recipients.length===0) {
+    return {configured:false};
+  }
+  const lines=[
+    "Nova solicitação recebida pelo site ZAC",
+    "Tipo: "+lead.requestType,
+    "Nome: "+lead.name,
+    "E-mail: "+lead.email,
+    "Telefone: "+(lead.phone||"não informado"),
+    "Assunto: "+(lead.subject||"não informado"),
+    "Mensagem: "+(lead.message||"não informada"),
+    "Consentimento: "+(lead.consent?"sim":"não"),
+    "Identificador: "+lead.id
+  ];
+  // Never accept recipients or sender from an external form submission.
+  const response=await env.EMAIL.send({
+    from:env.ZAC_NOTIFICATION_SENDER || "notificacoes@zacseguros.com.br",
+    to:recipients,
+    subject:"[ZAC] Nova solicitação pelo site - "+lead.requestType,
+    text:lines.join("\n"),
+    replyTo:lead.email
+  });
+  return {configured:true,messageId:response.messageId};
+}
 async function handleLead(request, env) {
   if (request.method !== "POST") return json({error:"Método não permitido."},405);
   const url = new URL(request.url);
@@ -48,6 +83,16 @@ async function handleLead(request, env) {
     ).bind(id,requestType,name,phone||null,email,subject||null,message||null,consent?1:0).run();
   } catch {
     return json({error:"Não foi possível registrar a solicitação. Tente novamente."},503);
+  }
+  // Store first, notify second. An unavailable email service must never cause a
+  // duplicate submission or silently discard the lead.
+  try {
+    await sendLeadNotice(env,{
+      id,name,email,phone,subject,message,requestType,consent
+    });
+  } catch (error) {
+    // No PII in application logs; the complete submission remains in D1.
+    console.error("ZAC lead email notification failed:", error?.code || "delivery-error");
   }
   return json({ok:true,id},201);
 }
