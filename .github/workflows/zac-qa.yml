@@ -1,0 +1,58 @@
+name: ZAC - QA independente (preview)
+on:
+  push:
+    branches: [staging/static-site-preview]
+    paths:
+      - ".github/workflows/zac-qa.yml"
+      - "src/independent.js"
+      - "wrangler.toml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Testar URL do preview sem alterar producao
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://staging-static-site-preview-zacassessoria.carolschimitez491.workers.dev"
+          for attempt in $(seq 1 10); do
+            if curl -fsSL --retry 1 "${BASE}/?qa=host${GITHUB_RUN_ID}" -o /tmp/zac-home.html &&
+               grep -q "O corretor no centro" /tmp/zac-home.html; then
+              break
+            fi
+            sleep 12
+          done
+          grep -q "O corretor no centro" /tmp/zac-home.html
+          ! grep -q "zac-assessoria.carolschimitez491.chatgpt.site" /tmp/zac-home.html
+          for i in $(seq -w 1 11); do
+            grep -q "zac-evento-${i}.jpg" /tmp/zac-home.html
+            code=$(curl -L -sS -o /dev/null -w "%{http_code}" "${BASE}/images/galeria/eventos/zac-evento-${i}.jpg")
+            echo "photo ${i}: HTTP ${code}"
+            test "${code}" = 200
+          done
+          for p in privacidade termos cookies acessibilidade obrigado; do
+            code=$(curl -L -sS -o /dev/null -w "%{http_code}" "${BASE}/${p}")
+            echo "page ${p}: HTTP ${code}"
+            test "${code}" = 200
+          done
+      - name: Testar endpoint do formulario em preview com dados sinteticos
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://staging-static-site-preview-zacassessoria.carolschimitez491.workers.dev"
+          code=$(curl -sS -o /tmp/zac-invalid.json -w "%{http_code}" \
+            -X POST "${BASE}/api/leads" -H 'Content-Type: application/json' \
+            --data '{"name":"Z","email":"invalid","phone":"0","consent":false}')
+          echo "Invalid form HTTP ${code}"
+          test "${code}" = 400
+          code=$(curl -sS -o /tmp/zac-valid.json -w "%{http_code}" \
+            -X POST "${BASE}/api/leads" -H 'Content-Type: application/json' \
+            --data '{"name":"Teste Homologacao ZAC","phone":"51999990000","email":"zac-qa@example.invalid","consent":true,"website":""}')
+          echo "Valid synthetic form HTTP ${code}"
+          cat /tmp/zac-valid.json
+          test "${code}" = 201
+          grep -q '"ok":true' /tmp/zac-valid.json
